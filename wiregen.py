@@ -1,0 +1,134 @@
+import json
+import os
+import subprocess
+import urllib.request as Web
+import requests
+import socket
+import zipfile
+import tempfile
+import shutil
+import sys
+import getopt
+
+pubK = None
+prvK = None
+
+
+def GenerateWG(path):
+    global pubK
+    global prvK
+    if os.path.isdir(path) != True:
+        os.mkdir(path)
+    if os.path.isfile(path + 'privatekey'):
+        prvK = open(path + 'privatekey', 'r').readline().rstrip()
+        print(f'PrivateK : {prvK}')
+        pubK = open(path + 'publickey', 'r').readline().rstrip()
+        print(f'PublicK : {pubK}')
+    else:
+        subprocess.check_output(
+            f"wg genkey | tee {path}privatekey | wg pubkey > {path}publickey", shell=True).decode("utf-8").strip()
+        prvK = open(path + 'privatekey', 'r').readline().rstrip()
+        print(f'PrivateK : {prvK}')
+        pubK = open(path + 'publickey', 'r').readline().rstrip()
+        print(f'PublicK : {pubK}')
+
+
+def Login(user, paswd, config_path):
+    if os.path.isdir(config_path) != True:
+        os.mkdir(config_path)
+    url = "https://api.uymgg1.com/v1/auth/login"
+    payload = json.dumps({"username": user, "password": paswd})
+    headers = {
+        'Host': 'api.uymgg1.com',
+        'Content-Type': 'application/json;charset=utf-8',
+        'Accept': 'application/json',
+        'Accept-Charset': 'utf-8',
+        'X-Device-Brand': 'Apple',
+        'Ss-Variant-Slugs': 'test_36:b;test_34:a;test_41:b;feature_1:b;test_28:a;feature_chat_apple:b;feature_shadowsocks:b;test_50:a;test_55:b;feature_rotator:a',
+        'Accept-Language': 'en-US;q=1.0',
+        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Surfshark/2.24.0 (com.surfshark.vpnclient.ios; build:19; iOS 14.8.1) Alamofire/5.4.3 device/mobile'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.ok:
+        print('logged in')
+        open(config_path + 'config.json', 'w').write(response.text)
+    else:
+        print(f'Error {response.status_code}')
+        exit()
+
+
+def RegisterWireGuard(token, pubkey):
+
+    url = "https://api.uymgg1.com/v1/account/users/public-keys"
+    payload = json.dumps({"pubKey": pubkey})
+    headers = {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {token}',
+        'Accept-Charset': 'utf-8',
+        'Ss-Variant-Slugs': 'test_36:b;test_34:a;test_41:b;feature_1:b;test_28:a;feature_chat_apple:b;feature_shadowsocks:b;test_50:a;test_55:b;feature_rotator:a;test108:b',
+        'Accept-Language': 'en-US;q=1.0',
+        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Surfshark/2.24.0 (com.surfshark.vpnclient.ios; build:19; iOS 14.8.1) Alamofire/5.4.3 device/mobile'
+    }
+    response = requests.request("POST", url, headers=headers, data=payload)
+    if response.status_code == 200 or response.status_code == 201:
+        print(json.dumps({"status": "ok", "prvkey": prvK,
+              "pubkey": pubK, "register": True, "wglog": [json.loads(response.text)]}))
+    else:
+        print(json.dumps(
+            {"status": "error", "response": response.status_code}))
+
+
+def Builder(path):
+    temp = tempfile.mkdtemp(prefix='wiregen-')
+    request = Web.Request('https://api.uymgg1.com/v4/server/clusters/generic')
+    request.add_header(
+        "user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36")
+    JData = json.loads(Web.urlopen(
+        request).read())
+    archive = zipfile.ZipFile(
+        path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
+    for i in JData:
+        ip = socket.gethostbyname(i['connectionName'])
+        with open(temp + '/' + i['location'] + '.conf', 'w') as file:
+            wg = f"# Script by Incognito Coder\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
+            file.write(wg)
+            file.close()
+            archive.write(temp + '/' + i['location'] +
+                          '.conf', i['location'] + '.conf')
+    shutil.rmtree(temp)
+
+
+def main(argv):
+    path = 'Data/'
+    short_args = 'hu:p:'
+    long_args = ['help', 'user=', 'pass=']
+    username = ''
+    password = ''
+    try:
+        opts, args = getopt.getopt(argv, short_args, long_args)
+    except getopt.GetoptError:
+        sys.exit(2)
+    if argv:
+        for opt, arg in opts:
+            if opt in ('-u', '--user'):
+                username = arg
+            elif opt in ('-p', '--pass'):
+                password = arg
+            elif opt in ("-h", "--help"):
+                print(f'Incognito Coder SurfShark Wireguard Generator\n'
+                      'Usage : -u TEXT -p TEXT')
+                sys.exit(0)
+            Login(username, password, path)
+            GenerateWG(path)
+            jayson = json.load(open(f'{path}config.json'))
+            RegisterWireGuard(jayson['token'], pubK)
+            Builder(path)
+    else:
+        print('No argument passed!')
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
