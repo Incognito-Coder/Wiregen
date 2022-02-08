@@ -121,11 +121,11 @@ def main(argv):
                 print(f'Incognito Coder SurfShark Wireguard Generator\n'
                       'Usage : -u TEXT -p TEXT')
                 sys.exit(0)
-            Login(username, password, path)
-            GenerateWG(path)
-            jayson = json.load(open(f'{path}config.json'))
-            RegisterWireGuard(jayson['token'], pubK)
-            Builder(path)
+        Login(username, password, path)
+        GenerateWG(path)
+        jayson = json.load(open(f'{path}config.json'))
+        RegisterWireGuard(jayson['token'], pubK)
+        Builder(path)
     else:
         print('No argument passed!')
 
