@@ -1,13 +1,14 @@
-# SurfShark Wireguard
-a script for generate wireguard configs from surfshark vpn \
-*You must installed `python3` on your machine*
+# Surfshark WireGuard
+A script for generating WireGuard configs from Surfshark VPN. \
+*You must have `python3` available on your machine.*
 
 ## Usage
-Currently we support only Unix based systems,not __Windows__
+Currently we support only Unix based systems, __Windows__ is not supported yet. \
+To use the scrpt:
 ``` bash
-python wiregen.py -u * -p *
+python wiregen.py -u USERNAME -p PASSWORD
 ```
-if above not working try:
+If above command doesn't work, try:
 ``` bash
-python3 wiregen.py --user * --pass *
+python3 wiregen.py --user USERNAME --pass PASSWORD
 ```
