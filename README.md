@@ -14,7 +14,7 @@ python3 wiregen.py --user EMAIL --pass PASSWORD
 ```
 Also we have Terminal user interface. \
 Simply run python file. \
-![Screenshot](https://github.com/Incognito-Coder/Wiregen/blob/main/img/main.png "Application")
+![Screenshot](https://raw.githubusercontent.com/Incognito-Coder/Wiregen/master/img/main.png "Application")
 
 # Credits
 Developer : Incognito Coder \
