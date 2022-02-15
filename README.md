@@ -12,3 +12,11 @@ If above command doesn't work, try:
 ``` bash
 python3 wiregen.py --user EMAIL --pass PASSWORD
 ```
+Also we have Terminal user interface. \
+Simply run python file. \
+![Screenshot](https://github.com/Incognito-Coder/Wiregen/blob/main/img/main.png "Application")
+
+# Credits
+Developer : Incognito Coder \
+if you enjoy my content, consider to buy me a coffee here:
+1. Donate [ZarinPal](https://zarinp.al/@incognito)
