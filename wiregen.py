@@ -88,21 +88,72 @@ def Builder(path):
         "user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36")
     JData = json.loads(Web.urlopen(
         request).read())
+    unique = {each['location']: each for each in JData}.values()
+    print(f'{colors.OKBLUE}Generating zip file{colors.ENDC}')
     archive = zipfile.ZipFile(
         path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
-    for i in JData:
+    for i in unique:
         ip = socket.gethostbyname(i['connectionName'])
         with open(temp + '/' + i['location'] + '.conf', 'w') as file:
-            wg = f"# Script by Incognito Coder\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
+            wg = f"# Script by Incognito Coder @IC_mods\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
             file.write(wg)
             file.close()
             archive.write(temp + '/' + i['location'] +
                           '.conf', i['location'] + '.conf')
+
+    print(f'{colors.OKGREEN}Built{colors.ENDC}')
     shutil.rmtree(temp)
 
 
+class colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+path = 'Data/'
+
+
+def help():
+
+    os.system('cls' if os.name == 'nt' else 'clear')
+    print(
+        "┌───────────────────────────────────────────────────────────────────────┐\n"
+        f"|{colors.OKCYAN}\t ____              __ ____  _                _    {colors.ENDC}\t\t|\n"
+        f"|{colors.OKCYAN}\t/ ___| _   _ _ __ / _/ ___|| |__   __ _ _ __| | __{colors.ENDC}\t\t|\n"
+        f"|{colors.OKCYAN}\t\___ \| | | | '__| |_\___ \| '_ \ / _` | '__| |/ /{colors.ENDC}\t\t|\n"
+        f"|{colors.OKCYAN}\t ___) | |_| | |  |  _|___) | | | | (_| | |  |   < {colors.ENDC}\t\t|\n"
+        f"|{colors.OKCYAN}\t|____/ \__,_|_|  |_| |____/|_| |_|\__,_|_|  |_|\_\ {colors.ENDC}\t\t| \n"
+        f"|{colors.FAIL}\t__        _____ ____  _____ ____ _   _   _    ____  ____  {colors.ENDC}\t|\n"
+        f"|{colors.FAIL}\t\ \      / /_ _|  _ \| ____/ ___| | | | / \  |  _ \|  _ \ {colors.ENDC}\t|\n"
+        f"|{colors.FAIL}\t \ \ /\ / / | || |_) |  _|| |  _| | | |/ _ \ | |_) | | | |{colors.ENDC}\t|\n"
+        f"|{colors.FAIL}\t  \ V  V /  | ||  _ <| |__| |_| | |_| / ___ \|  _ <| |_| |{colors.ENDC}\t|\n"
+        f"|{colors.FAIL}\t   \_/\_/  |___|_| \_\_____\____|\___/_/   \_\_| \_\____/ {colors.ENDC}\t|\n"
+        "|\t\t\t\t\t\t\t\t\t|\n"
+        "├───────────────────────────────────────────────────────────────────────┤\n"
+        "|\t\t\t\t\t\t\t\t\t|\n"
+        f"|{colors.WARNING}\t Developer : Incognito Coder || Channel : T.me/IC_MODS   {colors.ENDC}\t|\n"
+        "|\t\t\t\t\t\t\t\t\t|\n"
+        "├───────────────────────────────────────────────────────────────────────┤\n"
+        "| Version : 2.0 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
+        "└───────────────────────────────────────────────────────────────────────┘"
+    )
+    email = input(f'{colors.BOLD} Enter Account Email : {colors.ENDC}')
+    password = input(f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
+    Login(email, password, path)
+    GenerateWG(path)
+    jayson = json.load(open(f'{path}config.json'))
+    RegisterWireGuard(jayson['token'], pubK)
+    Builder(path)
+
+
 def main(argv):
-    path = 'Data/'
     short_args = 'hu:p:'
     long_args = ['help', 'user=', 'pass=']
     username = ''
@@ -128,6 +179,7 @@ def main(argv):
         Builder(path)
     else:
         print('No argument passed!')
+        help()
 
 
 if __name__ == "__main__":
