@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import json
 import os
 import subprocess
@@ -9,6 +10,7 @@ import tempfile
 import shutil
 import sys
 import getopt
+import time
 
 pubK = None
 prvK = None
@@ -120,6 +122,10 @@ class colors:
 path = 'Data/'
 
 
+def help_print():
+    print('')
+
+
 def help():
 
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -144,13 +150,26 @@ def help():
         "| Version : 2.0 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
         "└───────────────────────────────────────────────────────────────────────┘"
     )
-    email = input(f'{colors.BOLD} Enter Account Email : {colors.ENDC}')
-    password = input(f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
-    Login(email, password, path)
-    GenerateWG(path)
-    jayson = json.load(open(f'{path}config.json'))
-    RegisterWireGuard(jayson['token'], pubK)
-    Builder(path)
+    print(f'{colors.HEADER}'
+          '[1] Create Configs\n'
+          '[2] Exit App'
+          f'{colors.ENDC}')
+    opt = input('> ')
+    if opt == '1':
+        email = input(f'{colors.BOLD} Enter Account Email : {colors.ENDC}')
+        password = input(
+            f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
+        Login(email, password, path)
+        GenerateWG(path)
+        jayson = json.load(open(f'{path}config.json'))
+        RegisterWireGuard(jayson['token'], pubK)
+        Builder(path)
+    elif opt == '2':
+        sys.exit(0)
+    else:
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print('Undefined option.Exiting ...')
+        time.sleep(2)
 
 
 def main(argv):
