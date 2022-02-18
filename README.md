@@ -2,7 +2,7 @@
 A script for generating WireGuard configs from Surfshark VPN. \
 *You must have `python3` and `wireguard-tools` available on your machine.*
 ## Usage
-Currently we support only Unix based systems, __Windows__ is not supported yet.
+Compatible with : __Linux , Darwin , Windows__.
 ### System-Wide
 ``` bash
 sudo ./installer.sh
