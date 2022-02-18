@@ -21,18 +21,12 @@ def GenerateWG(path):
     global prvK
     if os.path.isdir(path) != True:
         os.mkdir(path)
-    if os.path.isfile(path + 'privatekey'):
-        prvK = open(path + 'privatekey', 'r').readline().rstrip()
-        print(f'PrivateK : {prvK}')
-        pubK = open(path + 'publickey', 'r').readline().rstrip()
-        print(f'PublicK : {pubK}')
-    else:
-        subprocess.check_output(
-            f"wg genkey | tee {path}privatekey | wg pubkey > {path}publickey", shell=True).decode("utf-8").strip()
-        prvK = open(path + 'privatekey', 'r').readline().rstrip()
-        print(f'PrivateK : {prvK}')
-        pubK = open(path + 'publickey', 'r').readline().rstrip()
-        print(f'PublicK : {pubK}')
+    subprocess.check_output(
+        f"wg genkey | tee {path}privatekey | wg pubkey > {path}publickey", shell=True).decode("utf-8").strip()
+    prvK = open(path + 'privatekey', 'r').readline().rstrip()
+    print(f' {colors.UNDERLINE}Private Key : {prvK}{colors.ENDC}')
+    pubK = open(path + 'publickey', 'r').readline().rstrip()
+    print(f' {colors.UNDERLINE}Public Key : {pubK}{colors.ENDC}')
 
 
 def Login(user, paswd, config_path):
@@ -53,10 +47,33 @@ def Login(user, paswd, config_path):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.ok:
-        print('logged in')
+        print(f'{colors.OKGREEN} Logged In{colors.ENDC}')
         open(config_path + 'config.json', 'w').write(response.text)
     else:
-        print(f'Error {response.status_code}')
+        print(f'{colors.FAIL} Error {response.status_code}{colors.ENDC}')
+        exit()
+
+
+def GetInfo(token):
+
+    url = "https://api.uymgg1.com/v1/payment/subscriptions/current"
+    headers = {
+        'Content-Type': 'application/json;charset=utf-8',
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {token}',
+        'Accept-Charset': 'utf-8',
+        'Ss-Variant-Slugs': 'test_36:b;test_34:a;test_41:b;feature_1:b;test_28:a;feature_chat_apple:b;feature_shadowsocks:b;test_50:a;test_55:b;feature_rotator:a;test108:b',
+        'Accept-Language': 'en-US;q=1.0',
+        'Accept-Encoding': 'gzip, deflate',
+        'User-Agent': 'Surfshark/2.24.0 (com.surfshark.vpnclient.ios; build:19; iOS 14.8.1) Alamofire/5.4.3 device/mobile'
+    }
+    response = requests.request("GET", url, headers=headers)
+    if response.ok:
+        JS = json.loads(response.text)
+        print(
+            f"{colors.BOLD} Plan Details{colors.ENDC}\n Plan: {JS['name']}\n End Date: {JS['expiresAt']}")
+    else:
+        print(f' Error {response.status_code}')
         exit()
 
 
@@ -76,11 +93,11 @@ def RegisterWireGuard(token, pubkey):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.status_code == 200 or response.status_code == 201:
-        print(json.dumps({"status": "ok", "prvkey": prvK,
-              "pubkey": pubK, "register": True, "wglog": [json.loads(response.text)]}))
+        print(
+            f" Status: OK\n Register: True\n Valid: {json.loads(response.text)['expiresAt']}")
     else:
-        print(json.dumps(
-            {"status": "error", "response": response.status_code}))
+        print(f" Error {response.status_code}")
+        sys.exit(2)
 
 
 def Builder(path):
@@ -91,7 +108,7 @@ def Builder(path):
     JData = json.loads(Web.urlopen(
         request).read())
     unique = {each['location']: each for each in JData}.values()
-    print(f'{colors.OKBLUE}Generating zip file{colors.ENDC}')
+    print(f'{colors.OKBLUE} Generating zip file{colors.ENDC}')
     archive = zipfile.ZipFile(
         path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
     for i in unique:
@@ -102,8 +119,10 @@ def Builder(path):
             file.close()
             archive.write(temp + '/' + i['location'] +
                           '.conf', i['location'] + '.conf')
+            print(
+                f"{colors.OKBLUE} {i['location']}{colors.ENDC} Created Successfully.")
 
-    print(f'{colors.OKGREEN}Built{colors.ENDC}')
+    print(f'{colors.OKGREEN} Built{colors.ENDC}')
     shutil.rmtree(temp)
 
 
@@ -119,11 +138,7 @@ class colors:
     UNDERLINE = '\033[4m'
 
 
-path = 'Data/'
-
-
-def help_print():
-    print('')
+path = 'Wireguard-Data/'
 
 
 def help():
@@ -147,7 +162,7 @@ def help():
         f"|{colors.WARNING}\t Developer : Incognito Coder || Channel : T.me/IC_MODS   {colors.ENDC}\t|\n"
         "|\t\t\t\t\t\t\t\t\t|\n"
         "├───────────────────────────────────────────────────────────────────────┤\n"
-        "| Version : 2.0 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
+        "| Version : 2.3 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
         "└───────────────────────────────────────────────────────────────────────┘"
     )
     print(f'{colors.HEADER}'
@@ -162,6 +177,7 @@ def help():
         Login(email, password, path)
         GenerateWG(path)
         jayson = json.load(open(f'{path}config.json'))
+        GetInfo(jayson['token'])
         RegisterWireGuard(jayson['token'], pubK)
         Builder(path)
     elif opt == '2':
