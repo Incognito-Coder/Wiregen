@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import cmd
 import json
 import os
 import subprocess
@@ -21,8 +22,11 @@ def GenerateWG(path):
     global prvK
     if os.path.isdir(path) != True:
         os.mkdir(path)
-    subprocess.check_output(
-        f"wg genkey | tee {path}privatekey | wg pubkey > {path}publickey", shell=True).decode("utf-8").strip()
+    if os.name == 'nt':
+        cmd = f"wg genkey | wtee {path}privatekey | wg pubkey > {path}publickey"
+    else:
+        cmd = f"wg genkey | tee {path}privatekey | wg pubkey > {path}publickey"
+    subprocess.check_output(cmd, shell=True).decode("utf-8").strip()
     prvK = open(path + 'privatekey', 'r').readline().rstrip()
     print(f' {colors.UNDERLINE}Private Key : {prvK}{colors.ENDC}')
     pubK = open(path + 'publickey', 'r').readline().rstrip()
