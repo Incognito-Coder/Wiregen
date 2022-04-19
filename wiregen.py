@@ -117,14 +117,15 @@ def Builder(path):
         path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
     for i in unique:
         ip = socket.gethostbyname(i['connectionName'])
-        with open(temp + '/' + i['location'] + '.conf', 'w') as file:
+        location = i['location'].replace(" ", "_")
+        with open(temp + '/' + location + '.conf', 'w') as file:
             wg = f"# Script by Incognito Coder @IC_mods\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
             file.write(wg)
             file.close()
-            archive.write(temp + '/' + i['location'] +
-                          '.conf', i['location'] + '.conf')
+            archive.write(temp + '/' + location +
+                          '.conf', location + '.conf')
             print(
-                f"{colors.OKBLUE} {i['location']}{colors.ENDC} Created Successfully.")
+                f"{colors.OKBLUE} {location}{colors.ENDC} Created Successfully.")
 
     print(f'{colors.OKGREEN} Built{colors.ENDC}')
     shutil.rmtree(temp)
