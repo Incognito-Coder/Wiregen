@@ -36,19 +36,9 @@ def GenerateWG(path):
 def Login(user, paswd, config_path):
     if os.path.isdir(config_path) != True:
         os.mkdir(config_path)
-    url = "https://api.uymgg1.com/v1/auth/login"
+    url = "https://api.surfshark.com/v1/auth/login"
     payload = json.dumps({"username": user, "password": paswd})
-    headers = {
-        'Host': 'api.uymgg1.com',
-        'Content-Type': 'application/json;charset=utf-8',
-        'Accept': 'application/json',
-        'Accept-Charset': 'utf-8',
-        'X-Device-Brand': 'Apple',
-        'Ss-Variant-Slugs': 'test_36:b;test_34:a;test_41:b;feature_1:b;test_28:a;feature_chat_apple:b;feature_shadowsocks:b;test_50:a;test_55:b;feature_rotator:a',
-        'Accept-Language': 'en-US;q=1.0',
-        'Accept-Encoding': 'gzip, deflate',
-        'User-Agent': 'Surfshark/2.24.0 (com.surfshark.vpnclient.ios; build:19; iOS 14.8.1) Alamofire/5.4.3 device/mobile'
-    }
+    headers = {'Content-Type': 'application/json;charset=utf-8'}
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.ok:
         print(f'{colors.OKGREEN} Logged In{colors.ENDC}')
@@ -167,7 +157,7 @@ def help():
         f"|{colors.WARNING}\t Developer : Incognito Coder || Channel : T.me/IC_MODS   {colors.ENDC}\t|\n"
         "|\t\t\t\t\t\t\t\t\t|\n"
         "├───────────────────────────────────────────────────────────────────────┤\n"
-        "| Version : 2.3 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
+        "| Version : 2.5 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
         "└───────────────────────────────────────────────────────────────────────┘"
     )
     print(f'{colors.HEADER}'
