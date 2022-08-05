@@ -1,1 +1,6 @@
 /bot.py
+Wireguard-Data/config.json
+Wireguard-Data/privatekey
+.gitignore
+Wireguard-Data/publickey
+Wireguard-Data/Wireguard-Confs.zip
