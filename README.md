@@ -7,6 +7,12 @@ Compatible with : __Linux , Darwin , Windows__.
 ``` bash
 sudo ./installer.sh
 ```
+#### ArchLinux
+Now Wiregen available in [AUR](https://aur.archlinux.org/)
+``` bash
+yay -S surfshark-wireguard
+```
+
 now you can use `wiregen` anywhere on your computer.
 ### Portable
 To use the script:
