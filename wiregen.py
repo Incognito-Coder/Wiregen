@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import cmd
 import json
 import os
@@ -50,7 +51,7 @@ def Login(user, paswd, config_path):
 
 def GetInfo(token):
 
-    url = "https://api.uymgg1.com/v1/payment/subscriptions/current"
+    url = "https://api.surfshark.com/v1/payment/subscriptions/current"
     headers = {
         'Content-Type': 'application/json;charset=utf-8',
         'Accept': 'application/json',
@@ -64,8 +65,7 @@ def GetInfo(token):
     response = requests.request("GET", url, headers=headers)
     if response.ok:
         JS = json.loads(response.text)
-        print(
-            f"{colors.BOLD} Plan Details{colors.ENDC}\n Plan: {JS['name']}\n End Date: {JS['expiresAt']}")
+        print(f"{colors.BOLD} Plan Details{colors.ENDC}\n Plan: {JS['name']}\n End Date: {JS['expiresAt']}")
     else:
         print(f' Error {response.status_code}')
         exit()
@@ -73,7 +73,7 @@ def GetInfo(token):
 
 def RegisterWireGuard(token, pubkey):
 
-    url = "https://api.uymgg1.com/v1/account/users/public-keys"
+    url = "https://api.surfshark.com/v1/account/users/public-keys"
     payload = json.dumps({"pubKey": pubkey})
     headers = {
         'Content-Type': 'application/json;charset=utf-8',
@@ -87,8 +87,7 @@ def RegisterWireGuard(token, pubkey):
     }
     response = requests.request("POST", url, headers=headers, data=payload)
     if response.status_code == 200 or response.status_code == 201:
-        print(
-            f" Status: OK\n Register: True\n Valid: {json.loads(response.text)['expiresAt']}")
+        print(f" Status: OK\n Register: True\n Valid: {json.loads(response.text)['expiresAt']}")
     else:
         print(f" Error {response.status_code}")
         sys.exit(2)
@@ -96,27 +95,24 @@ def RegisterWireGuard(token, pubkey):
 
 def Builder(path):
     temp = tempfile.mkdtemp(prefix='wiregen-')
-    request = Web.Request('https://api.uymgg1.com/v4/server/clusters/generic')
-    request.add_header(
-        "user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36")
-    JData = json.loads(Web.urlopen(
-        request).read())
+    request = Web.Request('https://api.surfshark.com/v4/server/clusters/generic')
+    request.add_header("user-agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36")
+    JData = json.loads(Web.urlopen(request).read())
     unique = {each['location']: each for each in JData}.values()
     print(f'{colors.OKBLUE} Generating zip file{colors.ENDC}')
-    archive = zipfile.ZipFile(
-        path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
+    archive = zipfile.ZipFile(path+'Wireguard-Confs.zip', 'w', zipfile.ZIP_DEFLATED)
     for i in unique:
-        ip = socket.gethostbyname(i['connectionName'])
-        location = i['location'].replace(" ", "_")
-        with open(temp + '/' + location + '.conf', 'w') as file:
-            wg = f"# Script by Incognito Coder @IC_mods\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
-            file.write(wg)
-            file.close()
-            archive.write(temp + '/' + location +
-                          '.conf', location + '.conf')
-            print(
-                f"{colors.OKBLUE} {location}{colors.ENDC} Created Successfully.")
-
+        try:
+            ip = socket.gethostbyname(i['connectionName'])
+            location = i['location'].replace(" ", "_")
+            with open(temp + '/' + location + '.conf', 'w') as file:
+                wg = f"# Script by Incognito Coder @IC_mods\n[Interface]\nPrivateKey = {prvK}\nAddress = 10.14.0.2/16\nDNS = 162.252.172.57, 149.154.159.92\n\n[Peer]\nPublicKey = {i['pubKey']}\nAllowedIps= 0.0.0.0/0\nEndpoint = {ip}:51820"
+                file.write(wg)
+                file.close()
+                archive.write(temp + '/' + location + '.conf', location + '.conf')
+                print(f"{colors.OKBLUE} {location}{colors.ENDC} Created Successfully.")
+        except:
+            print(f'{colors.FAIL}[?] {file} Invalid Hostname or Server is Down.{colors.ENDC}')
     print(f'{colors.OKGREEN} Built{colors.ENDC}')
     shutil.rmtree(temp)
 
@@ -157,7 +153,7 @@ def help():
         f"|{colors.WARNING}\t Developer : Incognito Coder || Channel : T.me/IC_MODS   {colors.ENDC}\t|\n"
         "|\t\t\t\t\t\t\t\t\t|\n"
         "├───────────────────────────────────────────────────────────────────────┤\n"
-        "| Version : 2.5 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
+        "| Version : 2.8 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
         "└───────────────────────────────────────────────────────────────────────┘"
     )
     print(f'{colors.HEADER}'
@@ -167,8 +163,7 @@ def help():
     opt = input('> ')
     if opt == '1':
         email = input(f'{colors.BOLD} Enter Account Email : {colors.ENDC}')
-        password = input(
-            f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
+        password = input(f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
         Login(email, password, path)
         GenerateWG(path)
         jayson = json.load(open(f'{path}config.json'))
@@ -208,7 +203,6 @@ def main(argv):
         RegisterWireGuard(jayson['token'], pubK)
         Builder(path)
     else:
-        print('No argument passed!')
         help()
 
 
