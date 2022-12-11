@@ -13,6 +13,7 @@ import shutil
 import sys
 import getopt
 import time
+import getpass
 
 pubK = None
 prvK = None
@@ -153,7 +154,7 @@ def help():
         f"|{colors.WARNING}\t Developer : Incognito Coder || Channel : T.me/IC_MODS   {colors.ENDC}\t|\n"
         "|\t\t\t\t\t\t\t\t\t|\n"
         "├───────────────────────────────────────────────────────────────────────┤\n"
-        "| Version : 2.8 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
+        "| Version : 2.9 || GitHub : https://github.com/Incognito-Coder/Wiregen  |\n"
         "└───────────────────────────────────────────────────────────────────────┘"
     )
     print(f'{colors.HEADER}'
@@ -163,7 +164,7 @@ def help():
     opt = input('> ')
     if opt == '1':
         email = input(f'{colors.BOLD} Enter Account Email : {colors.ENDC}')
-        password = input(f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
+        password = getpass.getpass(prompt=f'{colors.BOLD} Enter Account Password : {colors.ENDC}')
         Login(email, password, path)
         GenerateWG(path)
         jayson = json.load(open(f'{path}config.json'))
